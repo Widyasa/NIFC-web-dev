@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   description:
     "Platform kesehatan mental yang menyediakan artikel kredibel, kuis kesehatan mental, dan chatbot AI untuk dukungan emosional 24/7",
   keywords: "kesehatan mental, mental health, kuis psikologi, chatbot AI, artikel kesehatan, dukungan emosional",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
