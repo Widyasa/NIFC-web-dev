@@ -26,7 +26,7 @@ export function SetupInstructions() {
               Buat file <code className="bg-gray-100 px-1 rounded">.env.local</code> di root folder project Anda:
             </p>
             <div className="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-sm relative">
-              <code>GOOGLE_GENERATIVE_AI_API_KEY=AIzaSyByRwuJavATSVmZHIkw6asubUHHVEO_Wyw</code>
+              <code>GOOGLE_GENERATIVE_AI_API_KEY=...</code>
               <Button
                 size="sm"
                 variant="ghost"
