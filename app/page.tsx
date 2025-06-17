@@ -58,7 +58,7 @@ export default function HomePage() {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Heart className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">MindEase</span>
+                <span className="text-xl font-bold">MindEasy</span>
               </div>
               <p className="text-gray-400">Platform kesehatan mental yang mendukung perjalanan well-being Anda.</p>
             </div>
@@ -112,7 +112,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 MindEase. Semua hak dilindungi.</p>
+            <p>&copy; 2025 MindEasy. All Right Serve.</p>
           </div>
         </div>
       </footer>

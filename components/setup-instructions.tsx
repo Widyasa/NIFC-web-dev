@@ -16,7 +16,7 @@ export function SetupInstructions() {
         <CardHeader>
           <CardTitle className="flex items-center text-green-800">
             <CheckCircle className="w-5 h-5 mr-2" />
-            Setup Gemini API - MindEase
+            Setup Gemini API - MindEasy
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

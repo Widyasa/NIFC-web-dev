@@ -21,7 +21,7 @@ export default function TestimonialsSection() {
       role: "Mahasiswa",
       avatar: "https://images.unsplash.com/photo-1521566652839-697aa473761a?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       rating: 5,
-      text: "MindEase benar-benar membantu saya mengatasi kecemasan selama masa kuliah. Artikel-artikelnya mudah dipahami dan chatbot AI-nya sangat responsif. Terima kasih MindEase!",
+      text: "MindEasy benar-benar membantu saya mengatasi kecemasan selama masa kuliah. Artikel-artikelnya mudah dipahami dan chatbot AI-nya sangat responsif. Terima kasih MindEasy!",
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ export default function TestimonialsSection() {
       role: "Karyawan Swasta",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
       rating: 5,
-      text: "Sebagai pekerja yang sering stres, MindEase memberikan solusi praktis yang bisa saya terapkan langsung. Kuis mental health-nya juga membantu saya lebih memahami kondisi diri.",
+      text: "Sebagai pekerja yang sering stres, MindEasy memberikan solusi praktis yang bisa saya terapkan langsung. Kuis mental health-nya juga membantu saya lebih memahami kondisi diri.",
     },
     {
       id: 3,
@@ -45,7 +45,7 @@ export default function TestimonialsSection() {
       role: "Entrepreneur",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       rating: 5,
-      text: "MindEase membantu saya mengelola stres dalam berbisnis. Fitur chatbot 24/7 sangat membantu ketika butuh dukungan emosional di tengah malam. Highly recommended!",
+      text: "MindEasy membantu saya mengelola stres dalam berbisnis. Fitur chatbot 24/7 sangat membantu ketika butuh dukungan emosional di tengah malam. Highly recommended!",
     },
     {
       id: 5,
@@ -53,7 +53,7 @@ export default function TestimonialsSection() {
       role: "Guru",
       avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
       rating: 5,
-      text: "Sebagai pendidik, saya sering menghadapi tekanan. MindEase memberikan wawasan baru tentang kesehatan mental dan cara berkomunikasi yang lebih baik dengan siswa.",
+      text: "Sebagai pendidik, saya sering menghadapi tekanan. MindEasy memberikan wawasan baru tentang kesehatan mental dan cara berkomunikasi yang lebih baik dengan siswa.",
     },
     {
       id: 6,
@@ -61,7 +61,7 @@ export default function TestimonialsSection() {
       role: "Fresh Graduate",
       avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
       rating: 5,
-      text: "Masa transisi dari kuliah ke dunia kerja membuat saya cemas. MindEase membantu saya memahami perasaan ini normal dan memberikan strategi untuk mengatasinya.",
+      text: "Masa transisi dari kuliah ke dunia kerja membuat saya cemas. MindEasy membantu saya memahami perasaan ini normal dan memberikan strategi untuk mengatasinya.",
     },
   ]
 
@@ -90,7 +90,7 @@ export default function TestimonialsSection() {
             Apa Kata <span className="text-blue-600">Pengguna Kami</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Ribuan pengguna telah merasakan manfaat MindEase dalam perjalanan kesehatan mental mereka. Berikut adalah
+            Ribuan pengguna telah merasakan manfaat MindEasy dalam perjalanan kesehatan mental mereka. Berikut adalah
             cerita mereka.
           </p>
         </motion.div>
@@ -110,7 +110,7 @@ export default function TestimonialsSection() {
                   <Quote className="w-8 h-8" />
                 </div>
 
-                <CardContent className="p-8">
+                <CardContent className="p-8 pt-8">
                   {/* Rating Stars */}
                   <div className="flex items-center gap-1 mb-6">
                     {[...Array(testimonial.rating)].map((_, i) => (

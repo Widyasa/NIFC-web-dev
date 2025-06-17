@@ -25,7 +25,7 @@ export default function CTASection() {
           {/* Enhanced Description */}
           <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
             Bergabunglah dengan <span className="font-semibold text-gray-800">ribuan pengguna</span> yang telah
-            merasakan manfaat MindEase. Temukan kedamaian dan kesejahteraan mental Anda hari ini untuk hidup lebih baik.
+            merasakan manfaat MindEasy. Temukan kedamaian dan kesejahteraan mental Anda hari ini untuk hidup lebih baik.
           </p>
 
           {/* Enhanced Buttons */}

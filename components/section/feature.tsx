@@ -85,7 +85,7 @@ export default function FeaturesSection() {
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Fitur Unggulan <span className="text-blue-600">MindEase</span>
+            Fitur Unggulan <span className="text-blue-600">MindEasy</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Tiga fitur utama yang saling terintegrasi untuk mendukung perjalanan kesehatan mental Anda dengan pendekatan

@@ -13,10 +13,10 @@ import { Heart, ArrowLeft, Send, Bot, User, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSearchParams } from "next/navigation"
-import { articles } from "@/data/article" 
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { supabase } from "@/lib/supabase"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -24,13 +24,21 @@ const fadeInUp = {
   transition: { duration: 0.3 },
 }
 
+interface Article {
+  id: string;
+  title: string;
+  image: string | null;
+  category: string;
+  readTime: string; 
+}
+
 export default function ChatPage() {
   const searchParams = useSearchParams()
   const fromQuiz = searchParams?.get("fromQuiz") === "true"
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [quizResult, setQuizResult] = useState<any>(null)
-  // recommendedArticles state tidak lagi diperlukan di level ini, karena per pesan
-  // const [recommendedArticles, setRecommendedArticles] = useState<any[]>([])
+  const [allArticles, setAllArticles] = useState<Article[]>([])
+  const [loadingArticles, setLoadingArticles] = useState(true);
 
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
@@ -44,11 +52,41 @@ export default function ChatPage() {
 
   const [processedMessages, setProcessedMessages] = useState<any[]>([]);
 
+  const fetchArticles = useCallback(async () => {
+    setLoadingArticles(true);
+    const { data, error } = await supabase
+      .from('view_articles_with_category')
+      .select('*');
+
+    if (error) {
+      console.error("Error fetching articles:", error);
+      setAllArticles([]);
+    } else {
+      setAllArticles(data as Article[]);
+      console.log("Articles fetched from Supabase:", data); // LOG INI
+    }
+    setLoadingArticles(false);
+  }, []);
+
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
   const getArticlesByTitles = useCallback((titles: string[]) => { 
-    return articles.filter(article => 
-      titles.some(requestedTitle => article.title.toLowerCase() === requestedTitle.toLowerCase())
-    ); // Filter articles based on requested titles
-  }, [articles]); 
+    if (!allArticles.length) {
+      console.log("No articles loaded yet or allArticles is empty."); // LOG INI
+      return []; 
+    }
+    const foundArticles = allArticles.filter(article => 
+      titles.some(requestedTitle => article.title === requestedTitle)
+    );
+    
+    
+    console.log("Requested titles:", titles); // LOG INI
+    console.log("Article titles:", allArticles[2].title); // LOG INI
+    console.log("Found articles:", foundArticles); // LOG INI
+    return foundArticles;
+  }, [allArticles]); 
 
   useEffect(() => {
     if (fromQuiz) {
@@ -67,9 +105,17 @@ export default function ChatPage() {
 
       if (msg.role === 'assistant') {
         let messageContentForDisplay = msg.content; 
+        console.log("Original Assistant Message:", msg.content); // LOG INI
 
+        // REGEX PERBAIKAN: Pastikan ini cocok dengan output AI Anda
+        // Ekspresi reguler Anda saat ini adalah /(\[ARTIKEL_REKOMENDASI\]:[\s\S]*)/
+        // Ini akan mencocokkan "[ARTIKEL_REKOMENDASI]:" diikuti oleh karakter apa pun, termasuk newline.
+        // Jika AI Anda memberikan format yang lebih ketat, misal hanya di satu baris atau ada list bullet,
+        // regex ini mungkin perlu disesuaikan.
+        // Contoh umum: "[ARTIKEL_REKOMENDASI]: "Judul Artikel 1", "Judul Artikel 2""
         const articleTagRegex = /(\[ARTIKEL_REKOMENDASI\]:[\s\S]*)/; 
         const match = messageContentForDisplay.match(articleTagRegex);
+        console.log("Regex Match Result:", match); // LOG INI
 
         let extractedTitles: string[] = [];
         if (match && match[1]) {
@@ -79,61 +125,34 @@ export default function ChatPage() {
           while ((titleMatch = titleExtractorRegex.exec(rawTitlesPart)) !== null) {
             extractedTitles.push(titleMatch[1].trim());
           }
+          console.log("Extracted Titles:", extractedTitles); // LOG INI
           
-          // Set recommendedArticles di sini, hanya jika ini adalah pesan terakhir
           if (msg.id === messages[messages.length - 1].id) {
-            const newArticles = getArticlesByTitles(extractedTitles) as any[];
-            // Hanya tambahkan artikel baru yang belum ada di daftar
-            // Note: ini menargetkan recommendedArticles di state utama, yang sudah dihapus.
-            // Kita perlu memastikan bahwa recommendedArticles hanya diakumulasikan jika ini adalah akumulasi global.
-            // Karena sekarang per pesan, kita tidak lagi mengakumulasi global.
-            // Logic ini perlu direvisi untuk *mengakumulasi* recommendedArticles global,
-            // atau menghapusnya jika kita hanya mau per-pesan.
-            // Berdasarkan "tidak menghilang, jadi mungkin bisa dibuat loop juga seperti chatnya"
-            // diasumsikan kita mau akumulasi global.
-            
-            // --- PERBAIKAN: JIKA KITA TETAP MAU AKUMULASI GLOBAL ---
-            // Kita harus mengembalikan state `recommendedArticles` di level ChatPage
-            // dan `setRecommendedArticles` harus digunakan di sini.
-            // Namun, jika setiap pesan menampilkan artikelnya sendiri, akumulasi global bisa jadi tidak relevan.
-            // Saya akan asumsikan kita tetap ingin setiap pesan menampilkan rekomendasi *nya sendiri*,
-            // dan jika ada rekomendasi, itu akan terlihat di bawah pesan itu.
-            // Jika Anda ingin akumulasi global lagi, kita harus mengembalikan `recommendedArticles`
-            // di ChatPage dan menggunakannya.
-            
-            // Untuk skenario "rekomendasi per pesan", kita simpan di processedMsg.
+            const newArticles = getArticlesByTitles(extractedTitles) as Article[]; // Ubah tipe menjadi Article[]
             processedMsg.recommendedArticlesForThisMessage = newArticles;
+            console.log("Recommended Articles for this message:", newArticles); // LOG INI
           }
 
-          // Hapus bagian [ARTIKEL_REKOMENDASI]... dari mainContent yang akan diberikan ke ReactMarkdown
           messageContentForDisplay = messageContentForDisplay.replace(articleTagRegex, '').trim(); 
           
           processedMsg.hasRecommendation = true; 
         } else {
           processedMsg.hasRecommendation = false;
-          processedMsg.recommendedArticlesForThisMessage = []; // Pastikan kosong jika tidak ada rekomendasi
+          processedMsg.recommendedArticlesForThisMessage = []; 
+          console.log("No article recommendations found in this message."); // LOG INI
         }
 
-        // Konten utama yang akan dirender oleh ReactMarkdown
         processedMsg.mainContent = messageContentForDisplay;
 
       } else {
-        // Untuk pesan user, tidak perlu pemrosesan khusus
         processedMsg.mainContent = msg.content;
-        processedMsg.recommendedArticlesForThisMessage = []; // Pastikan pesan user tidak memiliki rekomendasi
+        processedMsg.recommendedArticlesForThisMessage = []; 
       }
       return processedMsg;
     });
 
     setProcessedMessages(newProcessedMessages);
 
-    // --- Hapus reset recommendedArticles global di sini ---
-    // Karena kita tidak lagi menggunakan recommendedArticles global untuk akumulasi
-    // jika kita menampilkan rekomendasi per pesan.
-    // Jika Anda ingin akumulasi global, maka kita harus mengembalikan state `recommendedArticles`
-    // dan mengelolanya di sini.
-
-    // Untuk memastikan messagesEndRef selalu berfungsi
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -143,11 +162,6 @@ export default function ChatPage() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
-
-    // --- Hapus reset recommendedArticles global di sini ---
-    // Karena tidak ada recommendedArticles global yang direset lagi dalam alur ini.
-    // Jika Anda ingin akumulasi global lagi, maka kita harus mengembalikan state `recommendedArticles`
-    // dan mengelolanya.
     
     handleSubmit(e)
   }
@@ -164,15 +178,6 @@ export default function ChatPage() {
               </div>
               <span className="text-xl font-bold text-blue-900">MindEase</span>
             </Link>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/articles" className="text-gray-700 hover:text-blue-600 transition-colors">
-                Artikel
-              </Link>
-              <Link href="/quiz" className="text-gray-700 hover:text-blue-600 transition-colors">
-                Kuis Mental
-              </Link>
-              <span className="text-blue-600 font-medium">Chat Support</span>
-            </div>
           </div>
         </div>
       </nav>
@@ -198,7 +203,7 @@ export default function ChatPage() {
                 apa saja tentang kesehatan mental.
               </p>
               {fromQuiz && quizResult && (
-                <Badge className="w-fit bg-green-100 text-green-800">✓ Hasil kuis telah dimuat</Badge>
+                <Badge  variant={"outline"}  className="w-fit bg-green-100 text-green-800">✓ Hasil kuis telah dimuat</Badge>
               )}
             </CardHeader>
           </Card>
@@ -347,49 +352,49 @@ export default function ChatPage() {
                           opacity: 0,
                           overflow: 'hidden',
                           lineHeight: 0, 
-                          fontSize: 0,   
+                          fontSize: 0,  
                         }}
                       >
                         {message.recommendationHiddenContent}
                       </span>
                     )}
-                    {/* --- Render Recommended Articles di sini --- */}
+                    {/* Render Recommended Articles di sini */}
                     {message.role === 'assistant' && message.recommendedArticlesForThisMessage && message.recommendedArticlesForThisMessage.length > 0 && (
                       <motion.div
-                        className="mt-4 space-y-2" // Kurangi margin atas agar lebih dekat ke chat
+                        className="mt-4 space-y-2" 
                         initial="initial"
                         animate="animate"
                         variants={fadeInUp}
                       >
                         <h4 className="text-sm font-semibold text-gray-800">Artikel yang Mungkin Membantu:</h4>
-                        <div className="grid gap-2 grid-cols-1 md:grid-cols-2"> {/* Layout yang lebih kompak */}
-                          {message.recommendedArticlesForThisMessage.map((article: any) => ( // Pastikan tipe any
+                        <div className="grid gap-2 grid-cols-1 md:grid-cols-2"> 
+                          {message.recommendedArticlesForThisMessage.map((article: Article) => ( 
                             <Card key={article.id} className="h-full hover:shadow-lg transition-all duration-300 border-blue-100 group">
                               <div className="relative overflow-hidden rounded-t-lg">
                                 <img
-                                  src={article.image || "/placeholder.svg"}
+                                  src={article.thumbnail_url || "/placeholder.svg"}
                                   alt={article.title}
                                   className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
                                 <Badge className="absolute top-1 left-1 bg-blue-600 hover:bg-blue-700 text-xs px-1 py-0.5">
-                                  {article.category}
+                                  {article.category_name}
                                 </Badge>
                               </div>
-                              <CardHeader className="p-3"> {/* Kurangi padding */}
+                              <CardHeader className="p-3"> 
                                 <CardTitle className="text-xs group-hover:text-blue-600 transition-colors line-clamp-2">
                                   {article.title}
                                 </CardTitle>
                               </CardHeader>
-                              <CardContent className="p-3 pt-0"> {/* Kurangi padding */}
+                              <CardContent className="p-3 pt-0"> 
                                 <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                  <span>{article.readTime}</span>
+                                  <span>{article.read_duration} menit</span>
                                 </div>
                                 <Button
                                   size="sm"
-                                  className="w-full bg-blue-600 hover:bg-blue-700 text-xs py-1 h-auto" // Sesuaikan tinggi button
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-xs py-1 h-auto" 
                                   asChild
                                 >
-                                  <Link href={`/articles#${article.id}`}>Baca Selengkapnya</Link>
+                                  <Link href={`/articles/${article.slug}`}>Baca Selengkapnya</Link>
                                 </Button>
                               </CardContent>
                             </Card>
@@ -424,16 +429,16 @@ export default function ChatPage() {
         {/* Input Form */}
         <motion.div initial="initial" animate="animate" variants={fadeInUp}>
           <Card className="border-blue-100">
-            <CardContent className="p-4">
+            <CardContent className="p-4 pt-4">
               <form onSubmit={onSubmit} className="flex space-x-2">
                 <Input
                   value={input}
                   onChange={handleInputChange}
                   placeholder="Ketik pesan Anda di sini..."
                   className="flex-1"
-                  disabled={isLoading}
+                  disabled={isLoading || loadingArticles} 
                 />
-                <Button type="submit" disabled={isLoading || !input.trim()} className="bg-blue-600 hover:bg-blue-700">
+                <Button type="submit" disabled={isLoading || !input.trim() || loadingArticles} className="bg-blue-600 hover:bg-blue-700">
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </form>

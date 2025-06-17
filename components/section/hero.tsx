@@ -73,20 +73,19 @@ export default function HeroSection() {
         >
           {/* Enhanced Badge */}
           <motion.div variants={fadeInUp} className="mb-8">
-            <Badge className="bg-blue-100 hover:bg-blue-100 text-blue-800 justify-center items-center px-6 py-3 text-base font-semibold border border-blue-200 shadow-lg transition-all duration-300">
-              <Sparkles className="w-4 h-4 mr-2" />
-                <p className="">
-                    Powered by
-                </p>
-              <img src="./gemini.svg" alt="gemini logo" className="ml-1 w-[27%]"/>
-            </Badge>
+            <div className="flex items-center gap-2 bg-blue-100 border border-blue-200 rounded-full px-4 py-2 mb-6 shadow-sm">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <div className="flex w-fit">
+              <span className="text-blue-800 font-medium text-sm">Powered By Gemini</span>
+            </div>
+          </div>
           </motion.div>
 
           {/* Enhanced Heading */}
           <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
             Jaga Kesehatan Mental Anda dengan{" "}
             <span className="relative">
-              <span className="text-blue-600">MindEase</span>
+              <span className="text-blue-600">MindEasy</span>
               <motion.div
                 className="absolute -bottom-2 left-0 right-0 h-1 bg-blue-200 rounded-full"
                 initial={{ scaleX: 0 }}
